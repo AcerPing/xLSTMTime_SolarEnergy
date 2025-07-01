@@ -1,0 +1,33 @@
+export QT_QPA_PLATFORM=xcb
+
+訓練模型－aquaponics
+python main.py --is_train 1 --context_points 1440 --target_points 1 --n_epochs 300
+python main.py --is_train 1 --dset 'aquaponics IoTPond1' --context_points 1440 --target_points 1 --n_epochs 500
+python main.py --is_train 1 --dset 'aquaponics IoTPond2' --context_points 1440 --target_points 1 --n_epochs 500
+python main.py --is_train 1 --dset 'aquaponics IoTPond3' --context_points 1440 --target_points 1 --n_epochs 500
+python main.py --is_train 1 --dset 'aquaponics IoTPond4' --context_points 1440 --target_points 1 --n_epochs 500
+
+遷移學習－aquaponics
+python main.py --is_train 1 --train_mode 'transfer-learning' --dset 'aquaponics IoTPond1' --context_points 1440 --target_points 1 --n_epochs 500
+python main.py --is_train 1 --train_mode 'transfer-learning' --Freeze --pretrain_path './results/aquaponics IoTPond2/xLSTMTime_cw1440_tw1_epochs500_model1.pth' --dset 'aquaponics IoTPond1' --context_points 1440 --target_points 1 --n_epochs 500 --batch_size 16 --lr 1e-6 --EarlyStoppingPatient 10
+
+顯示圖表－aquaponics
+python main.py --is_train 0 --context_points 1440 --target_points 1 --n_epochs 300
+python main.py --is_train 0 --dset 'aquaponics IoTPond1' --context_points 1440 --target_points 1 --n_epochs 500
+python main.py --is_train 0 --dset 'aquaponics IoTPond2' --context_points 1440 --target_points 1 --n_epochs 500
+python main.py --is_train 0 --dset 'aquaponics IoTPond3' --context_points 1440 --target_points 1 --n_epochs 500
+python main.py --is_train 0 --dset 'aquaponics IoTPond4' --context_points 1440 --target_points 1 --n_epochs 500
+
+Ensemble集成學習－aquaponics
+python main.py --is_train 0 --train_mode 'Ensemble' --dset 'aquaponics IoTPond1' --context_points 1440 --target_points 1 --n_epochs 500
+
+-----------------------------------------------------------------------------------------------------------------------
+
+訓練模型－IoT Monitoring Dataset of Water Quality and Tilapia
+python main.py --is_train 1 --dset 'IoT Monitoring Dataset of Water Quality and Tilapia' --context_points 336 --target_points 1 --batch_size 256 --n_epochs 500 --num_workers 8
+python main.py --is_train 1 --dset 'IoT Monitoring Dataset of Water Quality and Tilapia_Segment01' --context_points 336 --target_points 1 --batch_size 256 --n_epochs 500 --num_workers 8
+python main.py --is_train 1 --dset 'IoT Monitoring Dataset of Water Quality and Tilapia_Segment02' --context_points 336 --target_points 1 --batch_size 256 --n_epochs 500 --num_workers 8
+
+顯示圖表－IoT Monitoring Dataset of Water Quality and Tilapia
+python main.py --is_train 0 --dset 'IoT Monitoring Dataset of Water Quality and Tilapia' --context_points 336 --target_points 1 --n_epochs 500
+python main.py --is_train 0 --dset 'IoT Monitoring Dataset of Water Quality and Tilapia_Segment02' --context_points 336 --target_points 1 --batch_size 256 --n_epochs 500 --num_workers 8

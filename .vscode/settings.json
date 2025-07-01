@@ -1,0 +1,152 @@
+{
+
+  "better-comments.tags": [
+    {
+      "tag": "!",
+      "color": "#FF5555", // d9444a
+      "strikethrough": false,
+      "underline": false,
+      "backgroundColor": "transparent",
+      "bold": true, // false
+      "italic": false,
+    },// 警告
+    {
+      "tag": "?",
+      "color": "#8BE9FD", // f5c018
+      "strikethrough": false,
+      "underline": false,
+      "backgroundColor": "transparent",
+      "bold": false,
+      "italic": true, // false
+    }, // 問題
+    {
+      "tag": "//",
+      "color": "#474747",
+      "strikethrough": true,
+      "underline": false,
+      "backgroundColor": "transparent",
+      "bold": false,
+      "italic": false
+    }, // 廢棄的想法已改變。不刪除，但提醒自己已無效或過期。
+
+    {
+      "tag": "-",
+      "color": "#6D8CB4", // 藍灰色系
+      "strikethrough": false,
+      "backgroundColor": "transparent"
+    }, // 
+    {
+      "tag": "--",
+      "color": "#C2F0FF", // 淺藍色
+      "strikethrough": false,
+      "underline": false,
+      "backgroundColor": "transparent",
+      "bold": true,
+      "italic": false
+    },
+
+    {
+      "tag": "todo",
+      "color": "#D4AF37", // 亮金黃色
+      "backgroundColor": "transparent",
+      "bold": true,
+    },    
+    {
+      "tag": "*",
+      "color": "#98C379",
+      "strikethrough": false,
+      "underline": false,
+      "backgroundColor": "transparent",
+      "bold": false,
+      "italic": false
+    }, // 強調
+    { "tag": "**", "color": "#50FA7B" }, // 核心原則、不可省略
+    {
+      "tag": ">",
+      "color": "#fff",
+      "strikethrough": false,
+      "backgroundColor": "transparent"
+    }, // 引用說明或筆記，轉述原始來源或第三方意見。 EX. 這裡的演算法是參考 Paper [12] 的設計
+    {
+      "tag": ">>",
+      "color": "#bbbbbb",
+      "italic": true
+    } // 輕量補充、註解中註解
+    
+  ],
+  
+  // 啟用 TODO Highlight
+  "todo-highlight.isEnable": true,
+  "todo-tree.filtering.scopes": [
+  ],
+  "todo-tree.highlights.customHighlight": {
+  "-": {
+      "background": "#222",
+      "foreground": "#6D8CB4",
+      "iconColour": "#6D8CB4",
+      "icon": "check",
+      "type": "text-and-comment",
+      "hideFromTree": true
+  },
+  "!": {
+      "background": "#222",
+      "foreground": "#d9444a",
+      "iconColour": "#d9444a",
+      "icon": "check",
+      "type": "text-and-comment",
+      "hideFromTree": true
+  },
+  "?": {
+      "background": "#222",
+      "foreground": "#f5c018",
+      "iconColour": "#f5c018",
+      "icon": "check",
+      "type": "text-and-comment",
+      "hideFromTree": true
+  },
+  ">": {
+      "background": "#222",
+      "foreground": "#fff",
+      "iconColour": "#fff",
+      "icon": "check",
+      "type": "text-and-comment",
+      "hideFromTree": true
+  },
+  "TODO": {
+      "background": "#f5c018",
+      "foreground": "#000",
+      "iconColour": "#f5c018",
+      "icon": "check",
+      "type": "text-and-comment"
+  },
+  "FIXME": {
+      "background": "#d9444a",
+      "foreground": "#000",
+      "iconColour": "#d9444a",
+      "type": "text-and-comment"
+  }
+  },
+  "todo-tree.general.statusBar": "tags",
+  "todo-tree.general.tagGroups": {},
+  "todo-tree.general.tags": ["-", "!", "?", ">", "TODO","FIXME"],
+
+  "todo-highlight.include": [
+    "**/*.py", 
+    "**/*.txt", 
+    "**/*.ipynb",
+    "**/*.md",
+    "**/*.js",
+  ],
+
+  // TODO Highlight：針對 # -- 開頭的註解，用淺藍色標示
+  "todo-highlight.regex": [
+    {
+      "pattern": "#\\s*--.*",         // 支援 #--、# --、#   --
+      "color": "#C2F0FF",
+      "backgroundColor": "transparent",
+      "overviewRulerColor": "#5EC6FF",
+      "isCaseSensitive": false
+    }
+  ],
+
+}
