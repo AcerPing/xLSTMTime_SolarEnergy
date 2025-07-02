@@ -82,26 +82,6 @@ parser.add_argument('--EarlyStoppingPatient', type=int, default='25', help="Earl
 # TODO 【2】定義了但目前未被使用的參數（可能是保留、兼容或暫未實作）（❌代表未用到。）
 # 模型初始化
 # -- parser.add_argument('--n1', type=int, default=128, help='First Embedded representation')  #256 # 原意應為第一層 embedding，未使用。 ❌
-# 原本可能是用於 Mamba 模型的設定，但目前 xlstm 未使用
-# parser.add_argument('--d_state', type=int, default=128, help='d_state parameter of Mamba')  #256 ❌
-# parser.add_argument('--dconv', type=int, default=2, help='d_conv parameter of Mamba') # ❌
-# parser.add_argument('--e_fact', type=int, default=2, help='expand factor parameter of Mamba') # ❌
-# parser.add_argument('--residual', type=int, default=1, help='Residual Connection; True 1 False 0') # 殘差設定❌
-# 和 Transformer 架構相關，原始碼中未被 xlstm 調用。
-# parser.add_argument('--n_layers', type=int, default=3, help='number of Transformer layers') # ❌
-# parser.add_argument('--d_model', type=int, default=256, help='Transformer d_model') # ❌
-# parser.add_argument('--head_dropout', type=float, default=0, help='head dropout') # 沒有實際實作❌
-# parser.add_argument('--dropout', type=float, default=0.2, help='Dropout')
-# parser.add_argument('--d_ff', type=int, default=256, help='Tranformer MLP dimension')
-# parser.add_argument('--n_heads', type=int, default=16, help='number of Transformer heads')
-# parser = argparse.ArgumentParser(description='Swin Transformer training and evaluation script', add_help=False)
-# parser.add_argument('Swin Transformer training and evaluation script', add_help=False)
-# 保留給 config 檔用，但目前未使用。
-# parser.add_argument('--cfg', type=str, required=False, metavar="FILE", help='path to config file') # ❌
-# parser.add_argument("--opts", help="Modify config options by adding 'KEY VALUE' pairs. ", default=None, nargs='+') # ❌
-# 可能在多模型版本中有用，但目前 xlstm 還沒切換架構
-# parser.add_argument('--model_type', type=str, default='based_model', help='for multivariate model or univariate model') # 多架構選擇時可用，目前僅支援 xLSTM。 ❌
-# parser.add_argument('--ch_ind', type=int, default=1, help='Channel Independence; True 1 False 0') # 是否讓每個通道（feature）獨立建模，而不是共享參數或進行聯合建模。 #可能是為 Mamba 模型預留的❌
 
 # TODO 【3】取決於是否啟用某些功能的參數
 parser.add_argument('--revin', type=int, default=0, help='reversible instance normalization') # 關閉 RevIN（可逆標準化）。 # cbs = [RevInCB(dls.vars)] if args.revin else []
@@ -296,65 +276,28 @@ def test_func():
     # dls.test.dataset # 〔備用〕如果需要還原實際值
 
 
-def ensemble_test_func(weight_paths):
-    """
-    對多個預訓練模型進行 ensemble 預測（平均），並計算最終指標。
-    """
-    # get dataloader
-    dls = get_dls(args) # 載入測試集資料。
-    all_preds = []
-
-    for path in weight_paths:
-        print(f"載入模型權重: {path}")
-        model = get_model(dls.vars, args) # 第一階段：初始化模型架構、搭建出模型結構。
-        cbs = [RevInCB(dls.vars)] if args.revin else []
-        learn = Learner(dls, model, cbs=cbs) # 第二階段：建立 Learner 實例。
-                                             # 測試時，只要載入訓練好的權重，做 forward 預測即可，不需要做 loss.backward() 或梯度更新，所以可以不指定 loss function。
-        pred, target = learn.test(dls.test, weight_path=path)  # pred.shape: (n, 1)
-        all_preds.append(pred)
-    
-    # 取平均
-    ensemble_pred = sum(all_preds) / len(all_preds)
-
-    # 還原（若有使用 MinMaxScaler）
-    # if hasattr(dls.dataset.test, 'inverse_transform_y'):
-    #     ensemble_pred = dls.dataset.test.inverse_transform_y(ensemble_pred)
-    #     target = dls.dataset.test.inverse_transform_y(target)
-
-    return ensemble_pred, target
-
-
 if __name__ == '__main__':
 
     if args.is_train: # 執行訓練流程
         print(f'訓練模式: {args.train_mode}')
         suggested_lr = find_lr() # 自動尋找最適學習率
         args.suggested_lr = suggested_lr  # 將學習率加進參數紀錄
+        print(f"建議學習率: {suggested_lr:.2e}")
         save_arguments(args.save_path, configs) # 儲存訓練參數。
         train_func(suggested_lr) # 執行訓練
         save_lr_curve_from_csv(os.path.join(args.save_path, 'epoch_log.csv'), args.save_path, f_name=f'{args.dset} Learning Curve') # 繪製 Learning Curve
 
     else:
+        # testing mode 執行測試與可視化
+        # 1.) 呼叫 test_func()，得到 out = [pred, targ, score_values] & learn_model。
+        # 2.) 針對每個 feature_idx，使用 plot_feature_actual_vs_predicted() 畫出 pred vs targ 曲線。
+        out, learn_model = test_func() # out: a list of [pred, targ, score_values] & learn_model
 
-        if args.train_mode == 'Ensemble': # TODO: 集成學習 → 提升預測穩定性與準確性
-            print('Ensemble 集成學習')
-            weight_paths = ['./results/aquaponics IoTPond2/xLSTMTime_cw1440_tw1_epochs500_model1.pth', 
-                            './results/aquaponics IoTPond3/xLSTMTime_cw1440_tw1_epochs500_model1.pth', 
-                            './results/aquaponics IoTPond4/xLSTMTime_cw1440_tw1_epochs500_model1.pth' ] # ! 手動更正
-            out = ensemble_test_func(weight_paths) # out: a list of [pred, targ] 
-            save_metrics(actual=out[1], predicted=out[0], out_dir=args.save_path)
-
-        else:
-            # testing mode 執行測試與可視化
-            # 1.) 呼叫 test_func()，得到 out = [pred, targ, score_values] & learn_model。
-            # 2.) 針對每個 feature_idx，使用 plot_feature_actual_vs_predicted() 畫出 pred vs targ 曲線。
-            out, learn_model = test_func() # out: a list of [pred, targ, score_values] & learn_model
-
-            metric_names = ['MSE', 'RMSE', 'MAE', 'R2 Score', 'Explained Variance Score']
-            print('score:', out[2]) # MSE和MAE的評估結果。
-            metrics_df = pd.DataFrame({'Metric': metric_names, 'Value': out[2]})
-            print(metrics_df.to_string(index=False))
-            save_metrics(actual=out[1], predicted=out[0], out_dir=args.save_path, model = learn_model)
+        metric_names = ['MSE', 'RMSE', 'MAE', 'R2 Score', 'Explained Variance Score']
+        print('score:', out[2]) # MSE和MAE的評估結果。
+        metrics_df = pd.DataFrame({'Metric': metric_names, 'Value': out[2]})
+        print(metrics_df.to_string(index=False))
+        save_metrics(actual=out[1], predicted=out[0], out_dir=args.save_path, model = learn_model)
 
         print('pred.shape:', out[0].shape) # 模型預測出來的值。
         print('targ.shape:', out[1].shape) # targ = target（也就是 "ground truth"），測試資料中的「實際答案」。

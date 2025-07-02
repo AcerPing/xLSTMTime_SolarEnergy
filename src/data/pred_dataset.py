@@ -800,7 +800,7 @@ class Dataset_Tilapia (Dataset):
 
 
 # todo 【7】 Dataset_SolarEnergy ★★★★★
-class Dataset_Aquaponics (Dataset):
+class Dataset_SolarEnergy (Dataset):
     def __init__(self, root_path, split='train', size=None,
                  features='MS', data_path='Merged Plant1 Data(UnNormalized).csv',
                  target='DC_POWER', scale=True, timeenc=0, freq='T',
@@ -808,7 +808,7 @@ class Dataset_Aquaponics (Dataset):
                  train_split=0.8, test_split=0.2
                  ):
         """
-        Dataset_Custom 是「針對訓練用」的 Dataset，讀入 CSV 資料，分成 train/val/test，標準化後，取出 (context, label, target) 三段資料，支援加時間特徵。
+        Dataset_Custom 是「針對訓練用」的 Dataset, 讀入 CSV 資料，分成 train/val/test, 標準化後，取出 (context, label, target) 三段資料，支援加時間特徵。
         -- root_path: 資料的根目錄。
         -- split: 是要用來 train / val / test 的哪一部分。
         -- size: 輸入序列長度 (seq_len)、標籤長度 (label_len)、預測長度 (pred_len)。
@@ -822,7 +822,7 @@ class Dataset_Aquaponics (Dataset):
         -- train_split、test_split: 設定訓練集、測試集比例（剩下是驗證集）。 Ex. 70%訓練模型、 20%驗證模型、剩下的 10% Validation。
         """
         # size [seq_len, label_len, pred_len]
-        self.seq_len = size[0] # 模型輸入長度（context），預設1440。
+        self.seq_len = size[0] # 模型輸入長度（context），預設5。
         self.label_len = size[1] # 0
         self.pred_len = size[2] # 要預測的未來時間步，預設1。
 
@@ -886,24 +886,42 @@ class Dataset_Aquaponics (Dataset):
         #     // df_data = df_raw[[self.target]] # 只有 target 特徵。
         assert self.features == 'MS', f"features 必須是 'MS'，但收到的是 {self.features}"
         # 取 feature columns 與 target column
-        feature_cols = [col for col in df_raw.columns if col not in [self.time_col_name, self.target]] # 時間欄位不是feature，所以一併排除； target是要被預測的，也排除。
-                                                                                                       # fish_weight 應為未知數，不能當作特徵。
-        df_data_x = df_raw[feature_cols]
-        df_data_y = df_raw[[self.target]] # target單獨取出，target = 'fish_weight'。
+        feature_cols = [col for col in df_raw.columns 
+                        if col not in [self.time_col_name, self.target]] # 時間欄位不是feature，所以一併排除； target是要被預測的，也排除。
+                                                                         # DC_POWER 應為未知數，不能當作特徵。
+
+        # 分兩組： 先分 cyclic_cols & scaler_cols → scaler_cols 做 MinMaxScaler → 合併兩部分 → 再切 train/test
+        # 1. cyclic_cols → 不進行 scaling，包含'TIME_SIN', 'TIME_COS'。
+        # 2. scaler_cols → 特徵，需要進行 scaling。
+        cyclic_cols = ['TIME_SIN', 'TIME_COS'] # cyclic_cols 不進入 MinMaxScaler，保留[-1, 1]
+        scaler_cols = [col for col in feature_cols if col not in cyclic_cols] # 只有 scaler_cols 丟進 MinMaxScaler
+        # ========== 分開處理 ==========
+        df_cyclic = df_raw[cyclic_cols] # 先保留 cyclic_cols
+        df_scaler = df_raw[scaler_cols] # scaler_cols → 做 MinMaxScaler
+        df_data_y = df_raw[[self.target]] # target單獨取出，target = 'DC_POWER'。
 
         # 標準化（只對訓練集資料 fit，後續所有資料 transform）。
         assert self.scale, f"scale 必須是 True，但收到的是 {self.scale}" # // if self.scale: # // else: data = df_data.values # 不標準化，直接使用原始資料
+        
         # todo: 初始化 scaler 
         self.feature_scaler = MinMaxScaler()
         self.target_scaler = MinMaxScaler() 
+        # ========== 做 scaling ==========
         # todo: 整份資料直接 fit_transform（train+val+test一起 fit，不區分） -> 讓 feature 和 target 都統一在完整資料範圍內做縮放（不是只依靠train區段）。
-        data_x = self.feature_scaler.fit_transform(df_data_x.values)
-        data_y = self.target_scaler.fit_transform(df_data_y.values)
+        data_scaler = self.feature_scaler.fit_transform(df_scaler.values) # 只對 scaler_cols 做 fit_transform
+        data_y = self.target_scaler.fit_transform(df_data_y.values) # target 做 scaling
+        # 把 cyclic_cols 和 scaler_cols 合併回去
+        data_x = np.hstack([
+            df_cyclic.values,   # 不經 scaler
+            data_scaler         # 經過 scaler
+        ]) # 最後再用 np.hstack 合併回來
+
         # todo: 根據 split 分成 train/val/test
         self.data_x = data_x[border1:border2]  # 標準化後的特徵資料。
         self.data_y = data_y[border1:border2]  # 標準化後的目標資料。        
 
         # 將scale後的數值輸出，進行核對。
+        # feature_cols = cyclic_cols + scaler_cols
         # pd.DataFrame(data_x, columns=feature_cols).to_csv("scaled_feature_data.csv", index=False)
         # pd.DataFrame(data_y, columns=[self.target]).to_csv("scaled_target_data.csv", index=False)
 
@@ -914,10 +932,10 @@ class Dataset_Aquaponics (Dataset):
         # 根據 use_time_features 決定要不要處理
         if self.use_time_features:
             if self.timeenc == 0: # 拆成 month/day/weekday/hour。
-                df_stamp['month'] = df_stamp[self.time_col_name].apply(lambda row: row.month, 1)
-                df_stamp['day'] = df_stamp[self.time_col_name].apply(lambda row: row.day, 1)
-                df_stamp['weekday'] = df_stamp[self.time_col_name].apply(lambda row: row.weekday(), 1)
-                df_stamp['hour'] = df_stamp[self.time_col_name].apply(lambda row: row.hour, 1)
+                df_stamp['month'] = df_stamp[self.time_col_name].apply(lambda row: row.month)
+                df_stamp['day'] = df_stamp[self.time_col_name].apply(lambda row: row.day)
+                df_stamp['weekday'] = df_stamp[self.time_col_name].apply(lambda row: row.weekday())
+                df_stamp['hour'] = df_stamp[self.time_col_name].apply(lambda row: row.hour)
                 data_stamp = df_stamp.drop([self.time_col_name], axis=1).values
             elif self.timeenc == 1: # 使用內建的 time_features() 轉換。
                 data_stamp = time_features(pd.to_datetime(df_stamp[self.time_col_name].values), freq=self.freq)
@@ -950,7 +968,7 @@ class Dataset_Aquaponics (Dataset):
 
     def inverse_transform_y(self, data):
         """
-        還原目標(Fish Weight)的標準化資料
+        還原目標(DC_POWER)的標準化資料
         """
         return self.target_scaler.inverse_transform(data)
 
@@ -959,7 +977,12 @@ class Dataset_Aquaponics (Dataset):
         """
         還原特徵（環境感測器資料，如水溫、pH、溶氧）的標準化資料
         """
-        return self.feature_scaler.inverse_transform(data)
+        # 先保留 cyclic_cols
+        cyclic_cols = ['TIME_SIN', 'TIME_COS']
+        data_cyclic = data[:, :len(cyclic_cols)]
+        data_scaler = data[:, len(cyclic_cols):]
+        data_scaler_inv = self.feature_scaler.inverse_transform(data_scaler) # 對 scaler_cols 還原
+        return np.hstack([data_cyclic, data_scaler_inv])
 
 
 # ---------------------------------------------------------------------------------------------------------------

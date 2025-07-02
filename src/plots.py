@@ -149,11 +149,11 @@ def plot_feature_actual_vs_predicted(actual: torch.Tensor, predicted: torch.Tens
     
     # 在每個點上顯示數據標籤 (實際數據)
     for i, value in enumerate(actual_flat):
-        if i % 1000 == 0:  # 每隔 1000 個數據點顯示一次標籤
+        if i % 100 == 0:  # 每隔 100 個數據點顯示一次標籤
             plt.annotate(f'{value:.2f}', xy=(i, value), xytext=(0, 5), textcoords="offset points", ha='center', va='bottom', color='dodgerblue', fontsize=12, alpha=0.9)
     # 在每個點上顯示數據標籤 (預測數據)
     for i, value in enumerate(predicted_flat):
-        if i % 1000 == 0:  # 每隔 1000 個數據點顯示一次標籤
+        if i % 100 == 0:  # 每隔 100 個數據點顯示一次標籤
             plt.annotate(f'{value:.2f}', xy=(i, value),  xytext=(0, -5), textcoords="offset points", ha='center', va='top', color='crimson', fontsize=12, alpha=0.9)
     
     plt.title(f"[xLSTM] Actual vs Predicted Fish Weight (All Test Data)")

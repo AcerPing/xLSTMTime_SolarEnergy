@@ -7,7 +7,7 @@ import sys
 from src.data.datamodule import DataLoaders
 from src.data.pred_dataset import *
 
-DSETS = ['SolarEnergy'] # 替換不同資料集。
+DSETS = ['SolarEnergy Plant1', 'SolarEnergy Plant2'] # 替換不同資料集。
 
 # 1. ettm1 -> ETT 系列資料（電力需求、負載）
 # 2. aquaponics -> 〔養殖〕魚菜共生數據集
@@ -104,9 +104,14 @@ def get_dls(params):
         size = [params.context_points, 0, params.target_points] # 參考過去5筆數據來預測下一筆資料。 # * context_points=5, target_points=1
 
         # 根據 dset 名稱對應到正確的檔案
-        if params.dset == 'SolarEnergy Plant1': data_file = 'Merged Plant1 Data.csv'
-        elif params.dset == 'SolarEnergy Plant2': data_file = 'Merged Plant2 Data.csv'
+        if params.dset == 'SolarEnergy Plant1': data_file = 'Merged Plant1 Data(UnNormalized).csv'
+        elif params.dset == 'SolarEnergy Plant2': data_file = 'Merged Plant2 Data(UnNormalized).csv'
         else: raise ValueError(f"❌ 未知的 aquaponics 資料集名稱: {params.dset}") # 值無效或不符合預期
+
+        print(f"Loading {params.dset}")
+        print(f"Root path: {root_path}")
+        print(f"File: {data_file}")
+        print(f"Size: {size}")
 
         dls = DataLoaders(
                 datasetCls=Dataset_SolarEnergy, 
@@ -135,7 +140,7 @@ def get_dls(params):
 
 if __name__ == "__main__":
     class Params:
-        dset= 'aquaponics' # params.dset
+        dset= 'SolarEnergy Plant1' # params.dset
         context_points= 5
         target_points= 1
         batch_size= 128

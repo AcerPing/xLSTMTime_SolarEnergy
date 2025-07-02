@@ -1,11 +1,7 @@
 export QT_QPA_PLATFORM=xcb
 
-訓練模型－aquaponics
-python main.py --is_train 1 --context_points 1440 --target_points 1 --n_epochs 300
-python main.py --is_train 1 --dset 'aquaponics IoTPond1' --context_points 1440 --target_points 1 --n_epochs 500
-python main.py --is_train 1 --dset 'aquaponics IoTPond2' --context_points 1440 --target_points 1 --n_epochs 500
-python main.py --is_train 1 --dset 'aquaponics IoTPond3' --context_points 1440 --target_points 1 --n_epochs 500
-python main.py --is_train 1 --dset 'aquaponics IoTPond4' --context_points 1440 --target_points 1 --n_epochs 500
+訓練模型－SolarEnergy
+python main.py --is_train 1 --dset 'SolarEnergy Plant1' --context_points 5 --target_points 1 --n_epochs 500
 
 遷移學習－aquaponics
 python main.py --is_train 1 --train_mode 'transfer-learning' --dset 'aquaponics IoTPond1' --context_points 1440 --target_points 1 --n_epochs 500
