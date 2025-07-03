@@ -414,7 +414,7 @@ class Learner(GetAttr):
             print('model is frozen except the head')
             
             
-    def unfreeze(self):
+    def unfreeze(self): # full unfreeze
         for param in get_model(self.model).parameters(): param.requires_grad = True # 取得模型中所有可訓練的參數（如權重與偏差），並啟用該參數的梯度更新。
 
 
@@ -510,7 +510,7 @@ def transfer_weights(weights_path, model, exclude_head=True, device='cpu'):
     -- weights_path: 權重檔的路徑(.pth)。
     -- exclude_head: 若為 True, 則跳過名字中包含 'head' 的層（通常是輸出層）。
     """
-    state_dict = model.state_dict()
+    state_dict = model.state_dict() # 取得模型裡所有參數（weights 和 biases）。把模型的所有權重，用字典方式保存下來。
     new_state_dict = torch.load(weights_path, map_location=device) # 讀取儲存的 .pth 權重檔，並將權重放到指定的device。
     #print('new_state_dict',new_state_dict)
         
@@ -536,7 +536,7 @@ def transfer_weights(weights_path, model, exclude_head=True, device='cpu'):
         if name in new_state_dict: # 如果這個層在預訓練模型裡也存在，且形狀一樣，就複製權重；否則記錄成 unmatched。
             matched_layers += 1
             input_param = new_state_dict[name]
-            if input_param.shape == param.shape: param.copy_(input_param)
+            if input_param.shape == param.shape: param.copy_(input_param) # 將預訓練模型的權重，直接覆蓋到新模型相對應的權重上。
             else: unmatched_layers.append(name)
         else:
             unmatched_layers.append(name) # these are weights that weren't in the original model, such as a new head

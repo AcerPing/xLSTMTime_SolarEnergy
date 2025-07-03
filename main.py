@@ -151,7 +151,7 @@ def find_lr():
     """
     # get dataloader
     dls = get_dls(args) # 載入訓練資料。
-    model = get_model(dls.vars, args)
+    model = get_model(dls.vars, args) # 建立模型。此時模型裡面各層權重（weights/biases）都還是 隨機初始化（random init），尚未有任何預訓練知識。
 
     # 若為 transfer-learning，則載入預訓練權重並回傳模型
     if args.train_mode == 'transfer-learning': # TODO: 訓練遷移學習
