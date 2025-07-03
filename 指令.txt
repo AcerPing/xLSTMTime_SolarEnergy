@@ -7,6 +7,7 @@ python main.py --is_train 1 --dset 'SolarEnergy Plant2' --context_points 5 --tar
 遷移學習－SolarEnergy
 python main.py --is_train 1 --train_mode 'transfer-learning' --dset 'SolarEnergy Plant2' --context_points 1440 --target_points 1 --n_epochs 500
 python main.py --is_train 1 --train_mode 'transfer-learning' --pretrain_path './results/Pre-Train_SolarEnergy Plant1/xLSTMTime_cw5_tw1_epochs500_model1.pth' --dset 'SolarEnergy Plant2' --context_points 5 --target_points 1 --n_epochs 500 --batch_size 16 --lr 3e-05 # --EarlyStoppingPatient 10
+python main.py --is_train 1 --train_mode 'transfer-learning' --Freeze --pretrain_path './results/Pre-Train_SolarEnergy Plant1/xLSTMTime_cw5_tw1_epochs500_model1.pth' --dset 'SolarEnergy Plant2' --context_points 5 --target_points 1 --n_epochs 1000 --batch_size 16 --lr 3e-05 # --EarlyStoppingPatient 10
 
 顯示圖表－SolarEnergy
 python main.py --is_train 0 --dset 'SolarEnergy Plant1' --context_points 5 --target_points 1 --n_epochs 500
