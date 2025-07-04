@@ -1,0 +1,49 @@
+MAE: 0.044871
+MSE: 0.006338
+RMSE: 0.079612
+R2_Score: 0.927070
+Explained Variance Score: 0.927201
+=================================================================
+
+===== PyTorch Model Summary =====
+xlstm(
+  (batch_norm): BatchNorm1d(5, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (layer_norm): LayerNorm((128,), eps=1e-05, elementwise_affine=True)
+  (decompsition): series_decomp2(
+    (moving_avg): moving_avg(
+      (avg): AvgPool1d(kernel_size=(25,), stride=(1,), padding=(0,))
+    )
+  )
+  (Linear_Seasonal): Linear(in_features=5, out_features=1, bias=True)
+  (Linear_Trend): Linear(in_features=5, out_features=1, bias=True)
+  (Linear_Decoder): Linear(in_features=5, out_features=1, bias=True)
+  (mm): Linear(in_features=1, out_features=128, bias=True)
+  (mm2): Linear(in_features=128, out_features=1, bias=True)
+  (head): Linear(in_features=5, out_features=1, bias=True)
+  (xlstm_stack): xLSTMBlockStack(
+    (blocks): ModuleList(
+      (0-2): 3 x mLSTMBlock(
+        (xlstm_norm): LayerNorm()
+        (xlstm): mLSTMLayer(
+          (proj_up): Linear(in_features=128, out_features=512, bias=False)
+          (q_proj): LinearHeadwiseExpand(in_features=256, num_heads=64, expand_factor_up=1, bias=False, trainable_weight=True, trainable_bias=True, )
+          (k_proj): LinearHeadwiseExpand(in_features=256, num_heads=64, expand_factor_up=1, bias=False, trainable_weight=True, trainable_bias=True, )
+          (v_proj): LinearHeadwiseExpand(in_features=256, num_heads=64, expand_factor_up=1, bias=False, trainable_weight=True, trainable_bias=True, )
+          (conv1d): CausalConv1d(
+            (conv): Conv1d(256, 256, kernel_size=(4,), stride=(1,), padding=(3,), groups=256)
+          )
+          (conv_act_fn): SiLU()
+          (mlstm_cell): mLSTMCell(
+            (igate): Linear(in_features=768, out_features=4, bias=True)
+            (fgate): Linear(in_features=768, out_features=4, bias=True)
+            (outnorm): MultiHeadLayerNorm()
+          )
+          (ogate_act_fn): SiLU()
+          (proj_down): Linear(in_features=256, out_features=128, bias=False)
+          (dropout): Dropout(p=0.0, inplace=False)
+        )
+      )
+    )
+    (post_blocks_norm): LayerNorm()
+  )
+)
