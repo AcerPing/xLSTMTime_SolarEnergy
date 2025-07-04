@@ -1,3 +1,11 @@
 **/__pycache__/ 
 *.py[cod]
 temp/current.pth
+
+results/實驗 A：Plant1 → Plant2/歷程記錄/Transfer-Learning (Unfreeze)/**
+!results/實驗 A：Plant1 → Plant2/歷程記錄/Transfer-Learning (Unfreeze)/★SolarEnergy Plant2_20250703-7★
+!results/實驗 A：Plant1 → Plant2/歷程記錄/Transfer-Learning (Unfreeze)/★SolarEnergy Plant2_20250703-7★/**
+!results/實驗 A：Plant1 → Plant2/歷程記錄/Transfer-Learning (Unfreeze)/★SolarEnergy Plant2_20250703-12★
+!results/實驗 A：Plant1 → Plant2/歷程記錄/Transfer-Learning (Unfreeze)/★SolarEnergy Plant2_20250703-12★/**
+
+results/實驗 B：Plant2 → Plant1/歷程記錄/Transfer-Learning (Unfreeze)/**
