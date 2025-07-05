@@ -1,8 +1,8 @@
-MAE: 0.038711
-MSE: 0.004580
-RMSE: 0.067676
-R2_Score: 0.937036
-Explained Variance Score: 0.937185
+MAE: 0.035914
+MSE: 0.004340
+RMSE: 0.065880
+R2_Score: 0.940334
+Explained Variance Score: 0.940644
 =================================================================
 
 ===== PyTorch Model Summary =====

@@ -143,7 +143,8 @@ def plot_feature_actual_vs_predicted(actual: torch.Tensor, predicted: torch.Tens
     #predicted_feature = np.mean(predicted[: , : ,feature_idx ], axis=0)
 
     # 繪圖 Plot the first sequence
-    plt.figure(figsize=(10, 6)) # figsize=(30, 10), plt.rcParams["font.size"] = 18 # 設置字體大小
+    plt.figure(figsize=(30, 10)) # figsize=(30, 10), plt.rcParams["font.size"] = 18 # 設置字體大小
+    plt.rcParams["font.size"] = 18
     plt.plot(range(len(actual_flat)), actual_flat, label="Actual (Ground Truth)", color='blue', marker='o', markersize=2, linestyle='-') # plt.plot(actual_feature, label="Actual", color='blue')
     plt.plot(range(len(predicted_flat)), predicted_flat, label="Predicted", color='red', marker='x', markersize=2, linestyle='--') # plt.plot(predicted_feature, label="Predicted", color='red', linestyle='--')
     

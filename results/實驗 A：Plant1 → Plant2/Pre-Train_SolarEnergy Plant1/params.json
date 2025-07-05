@@ -21,5 +21,5 @@
     "scaler": "minmax",
     "save_model_name": "xLSTMTime_cw5_tw1_epochs500_model1",
     "save_path": "results/SolarEnergy Plant1",
-    "suggested_lr": 0.00017073526474706903
+    "suggested_lr": 0.0005214008287999684
 }

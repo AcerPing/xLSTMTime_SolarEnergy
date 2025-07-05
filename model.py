@@ -33,7 +33,7 @@ config = xLSTMBlockStackConfig(
         #slstm_at="all", # 開啟後會錯 RuntimeError: Error building extension 'slstm_HS128BS8NH4NS4DBfDRbDWbDGbDSbDAfNG4SA1GRCV0GRC0d0FCV0FC0d0'
                         # 在 xLSTM block stack 的所有層中都使用 sLSTM block。
                         # 所有層都用 sLSTMBlock（不使用 mLSTMBlock）。
-        context_length=1440,
+        context_length=5, # -- 根據資料集修改此變數。
     )
     
 
