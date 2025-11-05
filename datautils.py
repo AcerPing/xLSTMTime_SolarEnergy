@@ -140,7 +140,7 @@ def get_dls(params):
 
 if __name__ == "__main__":
     class Params:
-        dset= 'SolarEnergy Plant1' # params.dset
+        dset= 'SolarEnergy Plant2' # params.dset
         context_points= 5
         target_points= 1
         batch_size= 128
